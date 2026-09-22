@@ -1,8 +1,11 @@
-import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vite'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import crossOriginIsolation from "vite-plugin-cross-origin-isolation";
 
-// https://vite.dev/config/
 export default defineConfig({
   base: "/chess-analyzer/",
-  plugins: [react()],
-})
+  plugins: [react(), crossOriginIsolation()],
+  optimizeDeps: {
+    exclude: ["stockfish"],
+  },
+});

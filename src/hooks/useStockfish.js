@@ -8,7 +8,10 @@ export function useStockfish(fen) {
   const accRef = useRef({});
 
   useEffect(() => {
-    const worker = new Worker("/stockfish.js");
+    const workerCode = `importScripts('${window.location.origin}${window.location.pathname.replace(/\/$/, '')}/stockfish.js');`;
+    const blob = new Blob([workerCode], { type: "application/javascript" });
+    const url = URL.createObjectURL(blob);
+    const worker = new Worker(url);
 
     worker.onmessage = (e) => {
       const line = e.data;
@@ -37,7 +40,6 @@ export function useStockfish(fen) {
 
         accRef.current[mpv] = { move, score };
 
-        // Aktualizuj UI dopiero od głębokości 12
         if (d >= 8) {
           setDepth(d);
           if (mpv === 1) setEvaluation(score);
@@ -54,7 +56,10 @@ export function useStockfish(fen) {
     worker.postMessage("isready");
     workerRef.current = worker;
 
-    return () => worker.terminate();
+    return () => {
+      worker.terminate();
+      URL.revokeObjectURL(url);
+    };
   }, []);
 
   useEffect(() => {
